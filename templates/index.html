@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <script>
+            window.addEventListener("load", start);
+            function start(){
+                let f = "{{.Sheets}}";
+                let div = document.getElementById("sheets");
+                let lg = {{.LoggedIn}};
+                if(!lg){
+                    div.style.display = "none";
+                }else{
+                    f = f.split("");
+                    f.pop();
+                    f.shift();
+                    f = f.join("");
+                    f = f.split(" ")
+                    for(let i = 0; i < f.length; i++){
+                        let span = document.createElement("span");
+                        let br = document.createElement("br");
+                        span.innerHTML = f[i];
+                        div.appendChild(span);
+                        div.appendChild(br);
+                    }
+                }
+            }
+        </script>
+        <style>
+            .btn{
+                grid-column: auto;
+                border-style: solid;
+                background-color: rgb(204, 238, 255);
+            }
+            .btn:hover{
+                background-color: rgb(51, 187, 255);
+            }
+
+            #main{
+                display: grid;
+                grid-template-rows: 2fr auto;
+            }
+            #top{
+                grid-row: 1/2;
+                display: grid;
+                grid-template-columns: auto auto;
+            }
+            #title{
+                grid-column: 1/2;
+                text-align: center;
+            }
+            #logReg{
+                grid-column: 2/3;
+                display: grid;
+                grid-template-columns: auto auto;
+                text-align: center;
+            }
+            #sheets{
+                grid-row: 2/3;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="main">
+            <div id="top">
+                <h1 id="title">Testing {{.Title}}</h1>
+                <div id="logRreg">
+                    <a class="btn" href="/login/">Login</a>
+                    <a class="btn" href="/register/">Register</a>
+                </div>
+            </div>
+            <div id="sheets"></div>
+        </div>
+    </body>
+</html>
