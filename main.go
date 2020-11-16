@@ -134,3 +134,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	clearSession(w)
 	http.Redirect(w, r, "/index/", 303)
 }
+
+func sheetHandler(w http.ResponseWriter, r *http.Request) {
+
+}
