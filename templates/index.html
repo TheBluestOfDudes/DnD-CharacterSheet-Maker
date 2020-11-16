@@ -6,22 +6,36 @@
             window.addEventListener("load", start);
             function start(){
                 let f = "{{.Sheets}}";
-                let div = document.getElementById("sheets");
+                let sheets = document.getElementById("sheets");
+                let logReg = document.getElementById("logRreg");
+                let logut = document.getElementById("logout");
                 let lg = {{.LoggedIn}};
                 if(!lg){
-                    div.style.display = "none";
+                    sheets.style.display = "none";
+                    logout.style.display = "none";
                 }else{
+                    logReg.style.display = "none";
                     f = f.split("");
                     f.pop();
                     f.shift();
                     f = f.join("");
                     f = f.split(" ")
                     for(let i = 0; i < f.length; i++){
-                        let span = document.createElement("span");
+                        let form = document.createElement("form");
+                        let input = document.createElement("input");
+                        let button = document.createElement("button");
                         let br = document.createElement("br");
-                        span.innerHTML = f[i];
-                        div.appendChild(span);
-                        div.appendChild(br);
+                        form.method = "POST";
+                        form.action = "/sheet/";
+                        input.name = f[i];
+                        input.value = f[i];
+                        input.style.display = "none";
+                        button.type = "submit";
+                        button.innerHTML = f[i];
+                        form.appendChild(input);
+                        form.appendChild(button);
+                        sheets.appendChild(form);
+                        sheets.appendChild(br);
                     }
                 }
             }
@@ -34,6 +48,9 @@
             }
             .btn:hover{
                 background-color: rgb(51, 187, 255);
+            }
+            .sideTop{
+                grid-column: 2/3;
             }
 
             #main{
@@ -50,7 +67,6 @@
                 text-align: center;
             }
             #logReg{
-                grid-column: 2/3;
                 display: grid;
                 grid-template-columns: auto auto;
                 text-align: center;
@@ -63,10 +79,13 @@
     <body>
         <div id="main">
             <div id="top">
-                <h1 id="title">Testing {{.Title}}</h1>
-                <div id="logRreg">
-                    <a class="btn" href="/login/">Login</a>
-                    <a class="btn" href="/register/">Register</a>
+                <h1 id="title">{{.Title}}</h1>
+                <div class="sideTop" id="logRreg">
+                    <a class="btn" href="/loginpage/">Login</a>
+                    <a class="btn" href="/registerpage/">Register</a>
+                </div>
+                <div id="logout" class="sideTop">
+                    <a class="btn" href="/logout/">Logout</a>
                 </div>
             </div>
             <div id="sheets"></div>
