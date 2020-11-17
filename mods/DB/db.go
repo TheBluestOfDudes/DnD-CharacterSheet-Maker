@@ -1,6 +1,7 @@
 package db
 
 import (
+	pages "Pages"
 	"context"
 	"log"
 	"time"
@@ -74,4 +75,26 @@ func GetSheets(user string) []string {
 		log.Fatal(err)
 	}
 	return result.Sheets
+}
+
+//GetSheet retrieves character sheet data from the database and fills an object with the data
+func GetSheet(username string, sheetname string) pages.Sheet {
+	sheet := pages.Sheet{}
+	filter := bson.M{"owner": username, "name": sheetname}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connection))
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			panic(err)
+		}
+	}()
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	collection := client.Database("CharacterSheets").Collection("sheets")
+	err = collection.FindOne(context.TODO(), filter).Decode(&sheet)
+	return sheet
 }

@@ -136,5 +136,15 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func sheetHandler(w http.ResponseWriter, r *http.Request) {
-
+	username := getUserName(r)
+	page := pages.SheetPage{}
+	if username == "" {
+		page.LoggedIn = false
+	} else {
+		page.LoggedIn = true
+		page.CharacterSheet = db.GetSheet(username, r.FormValue("sheet"))
+		fmt.Println(page.CharacterSheet.Scores)
+		fmt.Println(page.CharacterSheet.Languages)
+		fmt.Println(page.CharacterSheet.ExpertSkills)
+	}
 }
