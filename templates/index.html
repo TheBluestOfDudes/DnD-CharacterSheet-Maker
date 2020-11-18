@@ -5,22 +5,18 @@
         <script>
             window.addEventListener("load", start);
             function start(){
-                let f = "{{.Sheets}}";
+                let data = {{.}};
                 let sheets = document.getElementById("sheets");
                 let logReg = document.getElementById("logRreg");
                 let logut = document.getElementById("logout");
-                let lg = {{.LoggedIn}};
-                if(!lg){
+                let title = document.getElementById("title");
+                title.innerHTML = data.Title;
+                if(!data.LoggedIn){
                     sheets.style.display = "none";
                     logout.style.display = "none";
                 }else{
                     logReg.style.display = "none";
-                    f = f.split("");
-                    f.pop();
-                    f.shift();
-                    f = f.join("");
-                    f = f.split(" ")
-                    for(let i = 0; i < f.length; i++){
+                    for(let i = 0; i < data.Sheets.length; i++){
                         let form = document.createElement("form");
                         let input = document.createElement("input");
                         let button = document.createElement("button");
@@ -28,10 +24,10 @@
                         form.method = "POST";
                         form.action = "/sheet/";
                         input.name = "sheet";
-                        input.value = f[i];
+                        input.value = data.Sheets[i];
                         input.style.display = "none";
                         button.type = "submit";
-                        button.innerHTML = f[i];
+                        button.innerHTML = data.Sheets[i];
                         form.appendChild(input);
                         form.appendChild(button);
                         sheets.appendChild(form);
@@ -79,7 +75,7 @@
     <body>
         <div id="main">
             <div id="top">
-                <h1 id="title">{{.Title}}</h1>
+                <h1 id="title"></h1>
                 <div class="sideTop" id="logRreg">
                     <a class="btn" href="/loginpage/">Login</a>
                     <a class="btn" href="/registerpage/">Register</a>

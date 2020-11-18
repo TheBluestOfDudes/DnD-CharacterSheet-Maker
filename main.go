@@ -3,6 +3,7 @@ package main
 import (
 	db "DB"
 	pages "Pages"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -112,8 +113,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		data.LoggedIn = true
 		data.Sheets = db.GetSheets(username)
 	}
+	pageData, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
 	t, _ := template.ParseFiles("./templates/index.html")
-	t.Execute(w, data)
+	t.Execute(w, string(pageData))
 }
 
 func loginPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -143,8 +148,11 @@ func sheetHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		page.LoggedIn = true
 		page.CharacterSheet = db.GetSheet(username, r.FormValue("sheet"))
-		fmt.Println(page.CharacterSheet.Scores)
-		fmt.Println(page.CharacterSheet.Languages)
-		fmt.Println(page.CharacterSheet.ExpertSkills)
 	}
+	pageData, err := json.Marshal(page)
+	if err != nil {
+		panic(err)
+	}
+	t, _ := template.ParseFiles("./templates/sheet.html")
+	t.Execute(w, string(pageData))
 }

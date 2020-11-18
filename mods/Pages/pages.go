@@ -33,6 +33,11 @@ type ally struct {
 	Description string `json:"description"`
 }
 
+type hitDie struct {
+	Name   string `json:"name"`
+	Amount int    `json:"amount"`
+}
+
 //Sheet holds all the character sheet data
 type Sheet struct {
 	Owner             string    `json:"owner"`
@@ -54,6 +59,7 @@ type Sheet struct {
 	NextExpirience    int       `json:"nextExpirience"`
 	Proficiency       int       `json:"proficiency"`
 	Scores            abilities `json:"scores"`
+	Saves             []string  `json:"saves"`
 	ProficientSkills  []string  `json:"proficientSkills"`
 	ExpertSkills      []string  `json:"expertSkills"`
 	Languages         []string  `json:"languages"`
@@ -73,6 +79,7 @@ type Sheet struct {
 	PassivePerception int       `json:"passivePerception"`
 	Backstory         string    `json:"backstory"`
 	Allies            []ally    `json:"allies"`
+	HitDie            hitDie    `json:"hitDie"`
 }
 
 //Index holds the data that fills our index page.

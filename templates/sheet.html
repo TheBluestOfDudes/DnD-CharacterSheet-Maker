@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <script>
+            window.addEventListener("load", start);
+
+            function start(){
+                let data = {{.}};
+                document.getElementById("sheetname").innerHTML = data.CharacterSheet.name;
+                fillTop(data.CharacterSheet);
+                fillMiddle(data.CharacterSheet);
+            }
+            
+            function fillTop(sheet){
+                let top = document.getElementById("top");
+                for(let el of top.childNodes){
+                    switch(el.id){
+                        case "charName": el.innerHTML = sheet.characterName; break;
+                        case "charInfo": fillCharInfo(sheet, el.childNodes); break;
+                    }
+                }
+            }
+
+            function fillCharInfo(sheet, eles){
+                for(let el of eles){
+                    switch(el.id){
+                        case "class": el.innerHTML = sheet.class; break;
+                        case "username": el.innerHTML = sheet.owner; break;
+                        case "level": el.innerHTML = sheet.level; break;
+                        case "race": el.innerHTML = sheet.race; break;
+                        case "allignment": el.innerHTML = sheet.allignment; break;
+                        case "exp": el.innerHTML = sheet.currentExpirience; break;
+                        case "nextExp": el.innerHTML = sheet.nextExpirience; break;
+                    }
+                }
+            }
+
+            function fillMiddle(sheet){
+                let middle = document.getElementById("middle");
+                for(let el of middle.childNodes){
+                    switch(el.id){
+                        case "scores": fillScores(sheet.scores, el.childNodes); break;
+                        case "proficiencies": fillProficiencies(sheet, el.childNodes); break;
+                        case "combatStats": fillCombat(sheet, el.childNodes); break;
+                        case "background": fillBackg(sheet, el.childNodes); break;
+                    }
+                }
+            }
+
+            function fillScores(sheet, eles){
+                for(let el of eles){
+                    switch(el.id){
+                        case "strScore": fillAbility(sheet.strength, el.childNodes); break;
+                        case "dexScore": fillAbility(sheet.dexterity, el.childNodes); break;
+                        case "conScore": fillAbility(sheet.constitution, el.childNodes); break;
+                        case "intScore": fillAbility(sheet.intelligence, el.childNodes); break;
+                        case "wisScore": fillAbility(sheet.wisdom, el.childNodes); break;
+                        case "chaScore": fillAbility(sheet.charisma, el.childNodes); break;
+                    }
+                }
+            }
+
+            function scoreToMod(score){
+                return Math.floor((score-10)/2);
+            }
+
+            function fillAbility(score, eles){
+                for(let el of eles){
+                    switch(el.className){
+                        case "scoreBoxTop": el.innerHTML = score; break;
+                        case "scoreBoxMid": el.innerHTML = "+" + scoreToMod(score); break;
+                    }
+                }
+            }
+
+            function fillProficiencies(sheet, eles){
+                for(let el of eles){
+                    switch(el.id){
+                        case "prof": fillSkill(true, false, 0, sheet.proficiency, el.childNodes); break;
+                        case "saves": fillSaves(sheet.saves, sheet.scores, sheet.proficiency, el.childNodes); break;
+                        case "skills": fillSkills(sheet.proficientSkills, sheet.expertSkills, sheet.scores, sheet.proficiency, el.childNodes); break;
+                    }
+                }
+            }
+
+            function fillSaves(saves, scores, prof, eles){
+                for(let ele of eles){
+                    switch(ele.id){
+                        case "strSave": fillSkill(saves.includes(ele.getAttribute("name")), false, scoreToMod(scores.strength), prof, ele.childNodes); break;
+                        case "dexSave": fillSkill(saves.includes(ele.getAttribute("name")), false, scoreToMod(scores.dexterity), prof, ele.childNodes); break;
+                        case "conSave": fillSkill(saves.includes(ele.getAttribute("name")), false, scoreToMod(scores.constitution), prof, ele.childNodes); break;
+                        case "intSave": fillSkill(saves.includes(ele.getAttribute("name")), false, scoreToMod(scores.intelligence), prof, ele.childNodes); break;
+                        case "wisSave": fillSkill(saves.includes(ele.getAttribute("name")), false, scoreToMod(scores.wisdom), prof, ele.childNodes); break;
+                        case "chaSave": fillSkill(saves.includes(ele.getAttribute("name")), false, scoreToMod(scores.charisma), prof, ele.childNodes); break;
+                    }
+                }
+            }
+
+            function fillSkills(profSkills, exSkills, scores, prof, eles){
+                for(let ele of eles){
+                    switch(ele.id){
+                        case "acrobatics": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.dexterity), prof, ele.childNodes); break;
+                        case "animalHandling": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.wisdom), prof, ele.childNodes); break;
+                        case "arcana": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.intelligence), prof, ele.childNodes); break;
+                        case "athletics": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.strength), prof, ele.childNodes); break;
+                        case "deception": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.charisma), prof, ele.childNodes); break;
+                        case "history": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.intelligence), prof, ele.childNodes); break;
+                        case "insight": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.wisdom), prof, ele.childNodes); break;
+                        case "intimidation": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.charisma), prof, ele.childNodes); break;
+                        case "investigation": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.intelligence), prof, ele.childNodes); break;
+                        case "medicine": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.wisdom), prof, ele.childNodes); break;
+                        case "nature": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.intelligence), prof, ele.childNodes); break;
+                        case "perception": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.wisdom), prof, ele.childNodes); break;
+                        case "performance": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.charisma), prof, ele.childNodes); break;
+                        case "persuasion": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.charisma), prof, ele.childNodes); break;
+                        case "religion": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.intelligence), prof, ele.childNodes); break;
+                        case "sleightOfHand": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.dexterity), prof, ele.childNodes); break;
+                        case "stealth": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.dexterity), prof, ele.childNodes); break;
+                        case "survival": fillSkill(profSkills.includes(ele.getAttribute("name")), exSkills.includes(ele.getAttribute("name")), scoreToMod(scores.wisdom), prof, ele.childNodes); break;
+                    }
+                }
+            }
+
+            function fillSkill(isProf, isExpert, score, bonus, eles){
+                let mod = 0;
+                for(let el of eles){
+                    switch(el.className){
+                        case "profEleLeft": {
+                            if(isExpert){
+                                mod = bonus*2 + score;
+                            }else if(isProf){
+                                mod = bonus + score;
+                            }else{
+                                mod = score;
+                            }
+                            el.innerHTML = "+" + mod;
+                        }
+                    }
+                }
+            }
+
+            function fillCombat(sheet, eles){
+                
+            }
+
+            function fillBackg(sheet, eles){
+                
+            }
+        </script>
+        <style>
+            #container{
+                display: grid;
+                grid-template-rows: 0.5fr 1fr 5fr 25fr;
+                text-align: center;
+                border-style: solid;
+            }
+            #top{
+                display: grid;
+                grid-template-columns: 1fr 3fr;
+                grid-row: 2/3;
+            }
+            #charName{
+                grid-column: 1/2;
+                text-align: center;
+                border-style: solid;
+                font-size: large;
+            }
+            #charInfo{
+                display: grid;
+                grid-template-columns: 40% 30% 10% 10% 10%;
+                grid-template-rows: auto auto;
+            }
+            .charInfoTop{
+                text-align: center;
+                border-style: solid;
+                grid-row: 1/2;
+            }
+            .charInfoBottom{
+                text-align: center;
+                border-style: solid;
+                grid-row: 2/3;
+            }
+            #middle{
+                display: grid;
+                grid-template-columns: 10% 5% 25% 5% 25% 5% 25%;
+                grid-row: 3/4;
+            }
+            #scores{
+                display: grid;
+                grid-template-rows: 1fr 0.5fr 1fr 0.5fr 1fr 0.5fr 1fr 0.5fr 1fr 0.5fr 1fr;
+                grid-column: 1/2;
+                border-style: solid;
+            }
+            .scoreBox{
+                display: grid;
+                grid-template-rows: 1fr 0.5fr 0.25fr;
+                border-bottom: solid;
+                margin: auto;
+            }
+            .scoreBoxTop{
+                grid-row: 1/2;
+                margin: auto;
+                text-align: center;
+            }
+            .scoreBoxMid{
+                grid-row: 2/3;
+                margin: auto;
+                text-align: center;
+            }
+            .scoreBoxBot{
+                grid-row: 3/4;
+                margin: auto;
+                text-align: center;
+            }
+            #proficiencies{
+                display: grid;
+                grid-template-rows: 0.5fr 1fr 3fr;
+                grid-column: 3/4;
+            }
+            #saves{
+                display: grid;
+                grid-template-rows: repeat(6, 1fr);
+                grid-row: 2/3;
+            }
+            #skills{
+                display: grid;
+                grid-template-rows: repeat(17, 1fr);
+                grid-row: 3/4;
+            }
+            .profBox{
+                display: grid;
+                grid-template-columns: 30% 70%;
+            }
+            .profEleLeft{
+                text-align: center;
+                grid-column: 1/2;
+            }
+            .profEleRight{
+                text-align: center;
+                grid-column: 2/3;
+            }
+            #combatStats{
+                display: grid;
+                grid-template-rows: repeat(3, 1fr);
+                grid-column: 5/6;
+            }
+            #stats{
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                grid-row: 1/2;
+            }
+            .statBox{
+                display: grid;
+                grid-template-rows: 80% 20%;
+            }
+            .statTop{
+                grid-row: 1/2;
+            }
+            .statBot{
+                grid-row: 2/3;
+            }
+            #background{
+                display: grid;
+                grid-template-rows: repeat(4, 1fr);
+                grid-column: 7/8;
+            }
+            .backgroundBox{
+                display: grid;
+                grid-template-rows: 1fr 5fr;
+            }
+            #bottom{
+                display: grid;
+                grid-template-columns: 1fr 0.1fr 2fr 2.5fr;
+                grid-template-rows: 0.25fr 1fr 0.1fr 3fr;
+                grid-row: 4/5;
+            }
+            #otherProfs{
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                grid-row: 2/3
+            }
+            .otherProfBox{
+                display: grid;
+                grid-template-rows: 1fr 1fr;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="sheetname" style="grid-row: 1/2; margin: auto;"></div>
+            <div id="top">
+                <div id="charName"></div>
+                <div id="charInfo">
+                    <div class="charInfoTop" id="class" style="grid-column: 1/3;"></div>
+                    <div class="charInfoTop" id="username" style="grid-column: 3/5;"></div>
+                    <div id="level" style="text-align: center; grid-column: 5/6; grid-row: 1/3; border-style: solid;"></div>
+                    <div class="charInfoBottom" id="race" style="grid-column: 1/2;"></div>
+                    <div class="charInfoBottom" id="allignment" style="grid-column: 2/3;"></div>
+                    <div class="charInfoBottom" id="exp" style="grid-column: 3/4;"></div>
+                    <div class="charInfoBottom" id="nextExp" style="grid-column: 4/5;"></div>
+                </div>
+            </div>
+            <div id="middle">
+                <div id="scores">
+                    <div class="scoreBox" id="strScore" style="grid-row: 1/2;">
+                        <div class="scoreBoxTop" id="strength"></div>
+                        <div class="scoreBoxMid" id="strMod"></div>
+                        <div class="scoreBoxBot">Strength</div>
+                    </div>
+                    <div class="scoreBox" id="dexScore" style="grid-row: 3/4;">
+                        <div class="scoreBoxTop" id="dexterity"></div>
+                        <div class="scoreBoxMid" id="dexMod"></div>
+                        <div class="scoreBoxBot">Dexterity</div>
+                    </div>
+                    <div class="scoreBox" id="conScore" style="grid-row: 5/6;">
+                        <div class="scoreBoxTop" id="constitution"></div>
+                        <div class="scoreBoxMid" id="conMod"></div>
+                        <div class="scoreBoxBot">Constitution</div>
+                    </div>
+                    <div class="scoreBox" id="intScore" style="grid-row: 7/8;">
+                        <div class="scoreBoxTop" id="intelligence"></div>
+                        <div class="scoreBoxMid" id="intMod"></div>
+                        <div class="scoreBoxBot">Intelligence</div>
+                    </div>
+                    <div class="scoreBox" id="wisScore" style="grid-row: 9/10;">
+                        <div class="scoreBoxTop" id="wisdom"></div>
+                        <div class="scoreBoxMid" id="wisMod"></div>
+                        <div class="scoreBoxBot">Wisdom</div>
+                    </div>
+                    <div class="scoreBox" id="chaScore" style="grid-row: 11/12;">
+                        <div class="scoreBoxTop" id="charisma"></div>
+                        <div class="scoreBoxMid" id="chaMod"></div>
+                        <div class="scoreBoxBot">Charisma</div>
+                    </div>
+                </div>
+                <div id="proficiencies">
+                    <div class="profBox" id="prof" style="grid-row: 1/2;">
+                        <div class="profEleLeft" id="profScore"></div>
+                        <div class="profEleRight">Proficiency</div>
+                    </div>
+                    <div id="saves">
+                        <div class="profBox" style="grid-row: 1/2;" id="strSave" name="Strength">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Strength</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 2/3;" id="dexSave" name="Dexterity">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Dexterity</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 3/4;" id="conSave" name="Constitution">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Constitution</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 4/5;" id="intSave" name="Intelligence">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Intelligence</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 5/6;" id="wisSave" name="Wisdom">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Wisdom</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 6/7;" id="chaSave" name="Charisma">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Charisma</div>
+                        </div>
+                    </div>
+                    <div id="skills">
+                        <div class="profBox" style="grid-row: 1/2;" id="acrobatics" name="Acrobatics">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Acrobatics</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 2/3;" id="animalHandling" name="Animal Handling">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Animal Handling</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 3/4;" id="arcana" name="Arcana">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Arcana</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 4/5;" id="athletics" name="Athletics">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Athletics</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 5/6;" id="deception" name="Deception">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Deception</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 6/7;" id="history" name="History">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">History</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 7/8;" id="insight" name="Insight">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Insight</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 8/9;" id="intimidation" name="Intimidation">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Intimidation</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 9/10;" id="investigation" name="Investigation">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Investigation</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 10/11;" id="medicine" name="Medicine">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Medicine</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 11/12;" id="nature" name="Nature">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Nature</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 12/13;" id="perception" name="Perception">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Perception</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 13/14;" id="performance" name="Performance">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Performance</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 14/15;" id="persuasion" name="Persuasion">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Persuasion</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 15/16;" id="religion" name="Religion">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Religion</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 16/17;" id="sleightOfHand" name="Sleight of Hand">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Sleight of Hand</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 17/18;" id="stealth" name="Stealth">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Stealth</div>
+                        </div>
+                        <div class="profBox" style="grid-row: 18/19;" id="survival" name="Survival">
+                            <div class="profEleLeft"></div>
+                            <div class="profEleRight">Survival</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="combatStats">
+                    <div id="stats">
+                        <div class="statBox" style="grid-column: 1/2;">
+                            <div class="statTop" id="ac"></div>
+                            <div class="statBot">AC</div>
+                        </div>
+                        <div class="statBox" style="grid-column: 2/3;">
+                            <div class="statTop" id="speed"></div>
+                            <div class="statBot">Movement</div>
+                        </div>
+                        <div class="statBox" style="grid-column: 3/4;">
+                            <div class="statTop" id="initiative"></div>
+                            <div class="statBot">Initiative</div>
+                        </div>
+                    </div>
+                    <div id="health" style="text-align: center; grid-row: 2/3;"></div>
+                    <div class="profBox" id="hitDie" style="grid-row: 3/4;">
+                        <div class="profEleLeft" id="hitDie"></div>
+                        <div class="profEleRight" id="hitDieAmount"></div>
+                    </div>
+                </div>
+                <div id="background">
+                    <div class="backgroundBox" style="grid-row: 1/2;">
+                        <div class="statTop">Background</div>
+                        <div class="statBot" id="charBackground"></div>
+                    </div>
+                    <div class="backgroundBox" style="grid-row: 2/3;">
+                        <div class="statTop">Ideals</div>
+                        <div class="statBot" id="charIdeals"></div>
+                    </div>
+                    <div class="backgroundBox" style="grid-row: 3/4;">
+                        <div class="statTop">Bonds</div>
+                        <div class="statBot" id="charBonds"></div>
+                    </div>
+                    <div class="backgroundBox" style="grid-row: 4/5;">
+                        <div class="statTop">Flaw</div>
+                        <div class="statBot" id="charFlaw"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="bottom">
+                <div class="profBox" id="passive" style="grid-column: 1/2; grid-row: 1/2;">
+                    <div class="profEleLeft" id="passivePerception"></div>
+                    <div class="profEleRight">Passive perception</div>
+                </div>
+                <div id="otherProfs">
+                    <div class="otherProfBox" style="grid-row: 1/2;">
+                        <div class="profEleLeft">Armor proficiencies: </div>
+                        <div class="profEleRight" id="armorProfs"></div>
+                    </div>
+                    <div class="otherProfBox" style="grid-row: 2/3;">
+                        <div class="profEleLeft">Weapon proficiencies: </div>
+                        <div class="profEleRight" id="weaponProfs"></div>
+                    </div>
+                    <div class="otherProfBox" style="grid-row: 3/4;">
+                        <div class="profEleLeft">Tool proficiencies: </div>
+                        <div class="profEleRight" id="toolProfs"></div>
+                    </div>
+                    <div class="otherProfBox" style="grid-row: 4/5;">
+                        <div class="profEleLeft">Vehicle proficiencies: </div>
+                        <div class="profEleRight" id="vehicleProfs"></div>
+                    </div>
+                </div>
+                <div id="inventory"></div>
+                <div id="languages" style="grid-row: 1/3; grid-column: 3/4;"></div>
+                <div id="feats" style="grid-row: 1/5; grid-column: 4/5;"></div>
+            </div>
+        </div>
+    </body>
+</html>
