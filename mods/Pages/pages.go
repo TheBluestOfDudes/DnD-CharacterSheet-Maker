@@ -1,6 +1,7 @@
 package pages
 
-type abilities struct {
+//Abilities represents a character's ability scores
+type Abilities struct {
 	Strength     int `json:"strength"`
 	Dexterity    int `json:"dexterity"`
 	Constitution int `json:"constitution"`
@@ -9,7 +10,8 @@ type abilities struct {
 	Charisma     int `json:"charisma"`
 }
 
-type money struct {
+//Coin represents the money a character has
+type Coin struct {
 	CP int `json:"cp"`
 	SP int `json:"sp"`
 	EP int `json:"ep"`
@@ -17,25 +19,36 @@ type money struct {
 	PP int `json:"pp"`
 }
 
-type item struct {
+//Item represents an item in a character's inventory
+type Item struct {
 	Name        string `json:"name"`
 	Amount      int    `json:"amount"`
 	Description string `json:"description"`
 }
 
-type feat struct {
+//Feat represents a feat a character might have
+type Feat struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-type ally struct {
+//Ally represents an ally a character has
+type Ally struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-type hitDie struct {
+//HitDice represents what the character's hit dice are
+type HitDice struct {
 	Name   string `json:"name"`
 	Amount int    `json:"amount"`
+}
+
+//Spell represents a spell a character might have
+type Spell struct {
+	Name        string `json:"name"`
+	Level       int    `json:"level"`
+	Description string `json:"description"`
 }
 
 //Sheet holds all the character sheet data
@@ -58,7 +71,7 @@ type Sheet struct {
 	CurrentExpirience int       `json:"currentExpirience"`
 	NextExpirience    int       `json:"nextExpirience"`
 	Proficiency       int       `json:"proficiency"`
-	Scores            abilities `json:"scores"`
+	Scores            Abilities `json:"scores"`
 	Saves             []string  `json:"saves"`
 	ProficientSkills  []string  `json:"proficientSkills"`
 	ExpertSkills      []string  `json:"expertSkills"`
@@ -67,19 +80,21 @@ type Sheet struct {
 	Vehicles          []string  `json:"vehicles"`
 	Weapons           []string  `json:"weapons"`
 	Armor             []string  `json:"armor"`
-	Inventory         []item    `json:"inventory"`
+	Inventory         []Item    `json:"inventory"`
 	AC                int       `json:"ac"`
 	Initiative        int       `json:"initiative"`
 	Speed             int       `json:"speed"`
 	Ideals            string    `json:"ideals"`
 	Bonds             string    `json:"bonds"`
 	Flaw              string    `json:"flaw"`
-	Feats             []feat    `json:"feats"`
-	Money             money     `json:"money"`
+	Feats             []Feat    `json:"feats"`
+	Money             Coin      `json:"money"`
 	PassivePerception int       `json:"passivePerception"`
 	Backstory         string    `json:"backstory"`
-	Allies            []ally    `json:"allies"`
-	HitDie            hitDie    `json:"hitDie"`
+	Allies            []Ally    `json:"allies"`
+	HitDie            HitDice   `json:"hitDie"`
+	Health            int       `json:"health"`
+	Spells            []Spell   `json:"spells"`
 }
 
 //Index holds the data that fills our index page.
@@ -93,4 +108,9 @@ type Index struct {
 type SheetPage struct {
 	CharacterSheet Sheet
 	LoggedIn       bool
+}
+
+//DeletePage holds the data that fills the delete page
+type DeletePage struct {
+	SheetName string
 }

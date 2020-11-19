@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+    </head>
+    <body>
+        <h1>Fill in with sheet information</h1>
+        <form method="POST" action="/newsheet/">
+            <label for="sheetName">Sheet name:</label>
+            <input id="sheetName" type="text" name="name" placeholder="Sheet name" required/><br/>
+            <label for="charName">Character name:</label>
+            <input id="charName" type="text" name="characterName" placeholder="Character name" required/><br/>
+            <label for="charAge">Age:</label>
+            <input id="charAge" type="number" name="age" placeholder="Character age"/><br/>
+            <label for="charWeight">Weight:</label>
+            <input id="charWeight" type="number" name="weight" placeholder="Character weight"/><br/>
+            <label for="charHeight">Height:</label>
+            <input id="charHeight" type="text" name="height" placeholder="Character height"/><br/>
+            <label for="size">Size:</label>
+            <select id="size" name="size" required>
+                <option value="Tiny">Tiny</option>
+                <option value="Small">Small</option>
+                <option value="Medium">Medium</option>
+                <option value="Large">Large</option>
+                <option value="Huge">Huge</option>
+                <option value="Gargantuan">Gargantuan</option>
+            </select><br/>
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select><br/>
+            <label for="eyeColor">Eye color:</label>
+            <input id="eyeColor" type="text" name="eyeColor" placeholder="Eye color"/><br/>
+            <label for="skinColor">Skin color:</label>
+            <input id="skinColor" type="text" name="skin" placeholder="Skin color"/><br/>
+            <label for="charClass">Class:</label>
+            <input id="charClass" type="text" name="class" placeholder="Class" required/><br/>
+            <label for="charRace">Race:</label>
+            <input id="charRace" type="text" name="race" placeholder="Race" required/><br/>
+            <label for="charLevel">Level:</label>
+            <input id="charLevel" type="number" name="level" placeholder="Level" required/><br/>
+            <label for="charAllignment">Allignment:</label>
+            <select id="charAllignment" name="allignment" required>
+                <option value="LG">LG</option>
+                <option value="NG">NG</option>
+                <option value="CG">CG</option>
+                <option value="LN">LN</option>
+                <option value="N">N</option>
+                <option value="CN">CN</option>
+                <option value="LE">LE</option>
+                <option value="NE">NE</option>
+                <option value="CE">CE</option>
+            </select></br>
+            <label for="charBackground">Background:</label>
+            <input id="charBackground" type="text" name="background" placeholder="Background" required/><br/>
+            <label for="charExp">Current exp:</label>
+            <input id="charExp" type="number" name="currentExpirience" placeholder="Current exp" required/><br/>
+            <label for="nextExp">Next exp:</label>
+            <input id="nextExp" type="number" name="nextExpirience" placeholder="Next exp" required/><br/>
+            <label for="charProf">Proficiency bonus:</label>
+            <input id="charProf" type="number" name="proficiency" placeholder="Proficiency bonus" required/><br/>
+            <label for="strength">Strength score:</label>
+            <input id="strength" type="number" name="strength" placeholder="Strength score:" required/><br/>
+            <label for="dexterity">Dexterity score:</label>
+            <input id="dexterity" type="number" name="dexterity" placeholder="Dexterity score:" required/><br/>
+            <label for="constitution">Constitution score:</label>
+            <input id="constitution" type="number" name="constitution" placeholder="Constitution score:" required/><br/>
+            <label for="intelligence">Intelligence score:</label>
+            <input id="intelligence" type="number" name="intelligence" placeholder="Intelligence score:" required/><br/>
+            <label for="wisdom">Wisdom score:</label>
+            <input id="wisdom" type="number" name="wisdom" placeholder="Wisdom score:" required/><br/>
+            <label for="charisma">Charisma score:</label>
+            <input id="charisma" type="number" name="charisma" placeholder="Charisma score:" required/><br/>
+            <label for="saves">Saving throws (Hold ctrl to select multiple):</label>
+            <select id="saves" size=6 name="saves" multiple required>
+                <option value="Strength">Strength</option>
+                <option value="Dexterity">Dexterity</option>
+                <option value="Constitution">Constitution</option>
+                <option value="Intelligence">Intelligence</option>
+                <option value="Wisdom">Wisdom</option>
+                <option value="Charisma">Charisma</option>
+            </select><br/>
+            <label for="profSkills">Proficient skills (Hold ctrl to select multiple):</label>
+            <select id="profSkills" size=18 name="proficientSkills" multiple required>
+                <option value="Acrobatics">Acrobatics</option>
+                <option value="AnimalHandling">Animal Handling</option>
+                <option value="Arcana">Arcana</option>
+                <option value="Athletics">Athletics</option>
+                <option value="Deception">Deception</option>
+                <option value="History">History</option>
+                <option value="Insight">Insight</option>
+                <option value="Intimidation">Intimidation</option>
+                <option value="Investigation">Investigation</option>
+                <option value="Medicine">Medicine</option>
+                <option value="Nature">Nature</option>
+                <option value="Perception">Perception</option>
+                <option value="Performance">Performance</option>
+                <option value="Persuasion">Persuasion</option>
+                <option value="Religion">Religion</option>
+                <option value="Sleight of Hand">Sleight of Hand</option>
+                <option value="Stealth">Stealth</option>
+                <option value="Survival">Survival</option>
+            </select></br>
+            <label for="expertSkills">Expertise skills (Hold ctrl to select multiple):</label>
+            <select id="expertSkills" size=18 name="expertSkills" multiple>
+                <option value="Acrobatics">Acrobatics</option>
+                <option value="AnimalHandling">Animal Handling</option>
+                <option value="Arcana">Arcana</option>
+                <option value="Athletics">Athletics</option>
+                <option value="Deception">Deception</option>
+                <option value="History">History</option>
+                <option value="Insight">Insight</option>
+                <option value="Intimidation">Intimidation</option>
+                <option value="Investigation">Investigation</option>
+                <option value="Medicine">Medicine</option>
+                <option value="Nature">Nature</option>
+                <option value="Perception">Perception</option>
+                <option value="Performance">Performance</option>
+                <option value="Persuasion">Persuasion</option>
+                <option value="Religion">Religion</option>
+                <option value="Sleight of Hand">Sleight of Hand</option>
+                <option value="Stealth">Stealth</option>
+                <option value="Survival">Survival</option>
+            </select></br>
+            <label for="languages">Languages (Hold ctrl to select multiple):</label>
+            <select id="languages" size=22 name="languages" multiple>
+                <option value="Abyssal">Abyssal</option>
+                <option value="Aquan">Aquan</option>
+                <option value="Auran">Auran</option>
+                <option value="Celestial">Celestial</option>
+                <option value="Common">Common</option>
+                <option value="Deep Speech">Deep Speech</option>
+                <option value="Draconic">Draconic</option>
+                <option value="Druidic">Druidic</option>
+                <option value="Dwarvish">Dwarvish</option>
+                <option value="Elvish">Elvish</option>
+                <option value="Giant">Giant</option>
+                <option value="Gnomish">Gnomish</option>
+                <option value="Goblin">Goblin</option>
+                <option value="Gnoll">Gnoll</option>
+                <option value="Halfling">Halfling</option>
+                <option value="Ignan">Ignan</option>
+                <option value="infernal">Infernal</option>
+                <option value="Primordial">Primordial</option>
+                <option value="Sylvan">Sylvan</option>
+                <option value="Terran">Terran</option>
+                <option value="Undercommon">Undercommon</option>
+            </select></br>
+            <label for="tools">Tools (Hold ctrl to select multiple):</label>
+            <select id="tools" size=8 name="tools" multiple>
+                <option value="Artisan's Tools">Artisan's Tool</option>
+                <option value="Gaming Set">Gaming Set</option>
+                <option value="Musical Instruments">Musical Instruments</option>
+                <option value="Disguise Kit">Disguise Kit</option>
+                <option value="Herbalism Kit">Herbalism Kit</option>
+                <option value="Navigator’s Tools">Navigator’s Tools</option>
+                <option value="Poisoner’s Kit">Poisoner’s Kit</option>
+                <option value="Thieves’ Tools">Thieves’ Tools</option>
+            </select><br/>
+            <label for="vehicles">Vehicles (Hold ctrl to select multiple):</label>
+            <select id="vehicles" size=3 name="vehicles" multiple>
+                <option value="Land Vehicles">Land Vehicles</option>
+                <option value="Sea Vehicles">Sea Vehicles</option>
+                <option value="Air Vehicles">Air Vehicles</option>
+            </select><br/>
+            <label for="weapons">Weapons (Hold ctrl to select multiple):</label>
+            <select id="weapons" size=2 name="weapons" multiple>
+                <option value="Simple Weapons">Simple Weapons</option>
+                <option value="Martial Weapons">Martial Weapons</option>
+            </select><br/>
+            <label for="armor">Armor (Hold ctrl to select multiple):</label>
+            <select id="armor" size=3 name="armor" multiple>
+                <option value="Heavy Armor">Heavy Armor</option>
+                <option value="Medium Armor">Medium Armor</option>
+                <option value="Light Armor">Light Armor</option>
+            </select><br/>
+            <label for="inventory">Inventory. Input an item with the format("Amount":"Item Name":"Description"). Seperate new items by comma</label>
+            <textarea type="text" id="inventory" name="inventory" placeholder="Ex: 3:Longsword:A magical +3 longsword"></textarea><br/>
+            <label for="ac">AC:</label>
+            <input id="ac" type="number" name="ac" placeholder="Armor Class" required/><br/>
+            <label for="initiative">Initiative:</label>
+            <input id="initiative" type="number" name="initiative" placeholder="Initiative" required/><br/>
+            <label for="speed">Speed:</label>
+            <input id="speed" type="number" name="speed" placeholder="Speed" required/><br/>
+            <label for="ideals">Ideals:</label>
+            <textarea type="text" id="ideals" name="ideals" placeholder="Ideals"></textarea><br/>
+            <label for="bonds">Bonds:</label>
+            <textarea type="text" id="bonds" name="bonds" placeholder="Bonds"></textarea><br/>
+            <label for="flaw">Flaw:</label>
+            <textarea type="text" id="flaw" name="flaw" placeholder="Flaw"></textarea><br/>
+            <label for="feats">Feats. Input a feat with the format("Name":"Description"). Separate new feats by comma:</label>
+            <textarea type="text" id="feats" name="feats" placeholder="Ex: Arcane Recovery:Can regain spell slots once per day"></textarea><br/>
+            <label for="cp">Copper Pieces:</label>
+            <input id="cp" type="number" name="cp" placeholder="CP" required/><br/>
+            <label for="sp">Silver Pieces:</label>
+            <input id="sp" type="number" name="sp" placeholder="SP" required/><br/>
+            <label for="ep">Elektrum Pieces:</label>
+            <input id="ep" type="number" name="ep" placeholder="EP" required/><br/>
+            <label for="gp">Gold Pieces:</label>
+            <input id="gp" type="number" name="gp" placeholder="GP" required/><br/>
+            <label for="pp">Platinum Pieces:</label>
+            <input id="pp" type="number" name="pp" placeholder="PP" required/><br/>
+            <label for="passive">Passive Perception:</label>
+            <input id="passive" type="number" name="passivePerception" placeholder="Passive Perception" required/><br/>
+            <label for="backstory">Backstory:</label>
+            <textarea id="backstory" type="text" name="backstory" placeholder="Character backstory"></textarea><br/>
+            <label for="allies">Allies. Input an ally with the format ("Name":"Description"). Separate new allies by comma:</label>
+            <textarea id="allies" type="text" name="allies" placeholder="Ex: The Knights Templar:A group of knights that serve the commmon man"></textarea><br/>
+            <label for="hitDie">Hit Die:</label>
+            <select id="hitDie" size=4 name="hitDie" required>
+                <option value="1d6">1d6</option>
+                <option value="1d8">1d8</option>
+                <option value="1d10">1d10</option>
+                <option value="1d12">1d12</option>
+            </select><br/>
+            <label for="health">Health:</label>
+            <input type="number" id="health" name="health" placeholder="HP" required/><br/>
+            <label for="spells">Spells. Input a spell with the format ("Name":"Level":"Description"). Separate new spells by comma</label>
+            <textarea id="spells" type="text" name="spells" placeholder="Ex: Fireball:3:8d6 fire damage in a 20ft radius"></textarea><br/>
+            <button type="submit" value="submit">Submit sheet</button>
+        </form>
+    </body>
+</html>

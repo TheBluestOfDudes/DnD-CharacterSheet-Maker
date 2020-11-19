@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h1>Are you sure you want to delete {{.SheetName}}?</h1>
+    <form method="POST" action="/delete/">
+        <input type="text" value="{{.SheetName}}" name="yes" style="display: none;"/>
+        <button type="submit" value="YES">Yes</button>
+    </form><br/>
+    <form method="GET" action="/index/">
+        <button type="submit" value="NO">No</button>
+    </form>
+</body>
