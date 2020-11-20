@@ -156,13 +156,14 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	user := db.User{}
-	if username != "" && password != "" {
+	if username == "" || password == "" {
 		http.Redirect(w, r, "/index/", 303)
-	} else {
+	} else if username != "" && password != "" {
 		exist := db.CheckUserName(r.FormValue("username"))
 		if !exist {
 			user.Username = r.FormValue("username")
 			user.Password = makeHash([]byte(r.FormValue("password")))
+			user.Sheets = []string{}
 			err := db.RegisterUser(user)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
