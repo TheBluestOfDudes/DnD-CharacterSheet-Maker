@@ -3,7 +3,7 @@ package db
 import (
 	pages "Pages"
 	"context"
-	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,7 +12,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const connection = "mongodb+srv://ImBlue:abubakar2ahmed@charactersheetdb.zre7u.mongodb.net/CharacterSheetDB?retryWrites=true&w=majority"
+//Conncetion link to the mongodb database.
+var connection = os.Getenv("CONNECTION")
 
 var (
 	ctx    context.Context
@@ -27,12 +28,12 @@ type User struct {
 }
 
 //CheckUser checks if a user exists in the database
-func CheckUser(user string, pass string) bool {
+func CheckUser(user string, pass string) (bool, error) {
+	ok := false
 	var result struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
-	ok := false
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connection))
@@ -43,31 +44,29 @@ func CheckUser(user string, pass string) bool {
 		}
 	}()
 	if err != nil {
-		log.Fatal(err)
+		return ok, err
 	}
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	collection := client.Database("CharacterSheets").Collection("users")
 	err = collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
-		ok = false
+		return ok, err
 	}
 	pwd := []byte(pass)
 	dpwd := []byte(result.Password)
 	passErr := bcrypt.CompareHashAndPassword(dpwd, pwd)
 	if passErr != nil {
-		ok = false
-	} else {
+		return ok, passErr
+	}
+	if user == result.Username {
 		ok = true
 	}
-	if (user == result.Username) && (pass == result.Password) {
-		ok = true
-	}
-	return ok
+	return ok, nil
 }
 
 //CheckUserName checks the database if the name can be found
-func CheckUserName(user string) bool {
+func CheckUserName(user string) (bool, error) {
 	ok := false
 	var result struct {
 		Username string `json:"username"`
@@ -82,23 +81,23 @@ func CheckUserName(user string) bool {
 		}
 	}()
 	if err != nil {
-		log.Fatal(err)
+		return false, err
 	}
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	collection := client.Database("CharacterSheets").Collection("users")
 	err = collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
-		ok = false
+		return false, nil
 	}
 	if user == result.Username {
 		ok = true
 	}
-	return ok
+	return ok, nil
 }
 
 //GetSheets gets the characyer sheets from the database
-func GetSheets(user string) []string {
+func GetSheets(user string) ([]string, error) {
 	var result struct {
 		Sheets []string `json:"sheets"`
 	}
@@ -112,20 +111,22 @@ func GetSheets(user string) []string {
 		}
 	}()
 	if err != nil {
-		log.Fatal(err)
+		result.Sheets = []string{}
+		return result.Sheets, err
 	}
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	collection := client.Database("CharacterSheets").Collection("users")
 	err = collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
-		log.Fatal(err)
+		result.Sheets = []string{}
+		return result.Sheets, err
 	}
-	return result.Sheets
+	return result.Sheets, nil
 }
 
 //GetSheet retrieves character sheet data from the database and fills an object with the data
-func GetSheet(username string, sheetname string) pages.Sheet {
+func GetSheet(username string, sheetname string) (pages.Sheet, error) {
 	sheet := pages.Sheet{}
 	filter := bson.M{"owner": username, "name": sheetname}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -137,13 +138,13 @@ func GetSheet(username string, sheetname string) pages.Sheet {
 		}
 	}()
 	if err != nil {
-		log.Fatal(err)
+		return sheet, err
 	}
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	collection := client.Database("CharacterSheets").Collection("sheets")
 	err = collection.FindOne(context.TODO(), filter).Decode(&sheet)
-	return sheet
+	return sheet, err
 }
 
 //RegisterUser registers a new user in the database
@@ -157,7 +158,7 @@ func RegisterUser(user User) error {
 		}
 	}()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -169,8 +170,7 @@ func RegisterUser(user User) error {
 }
 
 //RegisterSheet registers a new character sheet with a user
-func RegisterSheet(user string, sheet pages.Sheet) bool {
-	var ok = false
+func RegisterSheet(user string, sheet pages.Sheet) error {
 	filterUser := bson.M{"username": user}
 	update := bson.M{"$push": bson.M{"sheets": sheet.Name}}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -182,16 +182,14 @@ func RegisterSheet(user string, sheet pages.Sheet) bool {
 		}
 	}()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	collection := client.Database("CharacterSheets").Collection("users")
 	_, err = collection.UpdateOne(context.TODO(), filterUser, update)
 	if err != nil {
-		ok = false
-	} else {
-		ok = true
+		return err
 	}
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -200,13 +198,13 @@ func RegisterSheet(user string, sheet pages.Sheet) bool {
 	defer cancel()
 	_, err = collection.InsertOne(ctx, sheet)
 	if err != nil {
-		ok = false
+		return err
 	}
-	return ok
+	return err
 }
 
 //DeleteSheet deletes a sheet from the database
-func DeleteSheet(user string, sheet string) {
+func DeleteSheet(user string, sheet string) error {
 	filterUser := bson.M{"username": user}
 	filterSheets := bson.M{"owner": user, "name": sheet}
 	updateUser := bson.M{"$pull": bson.M{"sheets": sheet}}
@@ -219,14 +217,21 @@ func DeleteSheet(user string, sheet string) {
 		}
 	}()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	collection := client.Database("CharacterSheets").Collection("users")
 	_, err = collection.UpdateOne(context.TODO(), filterUser, updateUser)
+	if err != nil {
+		return err
+	}
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	collection = client.Database("CharacterSheets").Collection("sheets")
 	_, err = collection.DeleteOne(ctx, filterSheets)
+	if err != nil {
+		return err
+	}
+	return err
 }

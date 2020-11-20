@@ -16,6 +16,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type featOrAlly struct {
+	Name        string
+	Description string
+}
+
 var cookieHandler = securecookie.New(
 	securecookie.GenerateRandomKey(64),
 	securecookie.GenerateRandomKey(32))
@@ -42,6 +47,108 @@ func main() {
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		panic(err)
 	}
+}
+
+func actionFailed(w http.ResponseWriter, message string) {
+	fail := pages.FailPage{}
+	t, _ := template.ParseFiles("./templates/fail.html")
+	fail.Error = message
+	w.WriteHeader(http.StatusInternalServerError)
+	t.Execute(w, fail)
+}
+
+func parseFeatsAndAllies(list []string) []featOrAlly {
+	featsOrAllies := []featOrAlly{}
+	for i := 0; i < len(list); i++ {
+		feOAl := featOrAlly{}
+		info := strings.Split(list[i], ":")
+		if len(info) == 2 {
+			for j := 0; j < len(info); j++ {
+				switch j {
+				case 0:
+					{
+						feOAl.Name = info[j]
+						break
+					}
+				case 1:
+					{
+						feOAl.Description = info[j]
+						break
+					}
+				}
+			}
+			featsOrAllies = append(featsOrAllies, feOAl)
+		}
+	}
+	return featsOrAllies
+}
+
+func parseItems(itemList []string) []pages.Item {
+	inventory := []pages.Item{}
+	for i := 0; i < len(itemList); i++ {
+		item := pages.Item{}
+		itemInfo := strings.Split(itemList[i], ":")
+		if len(itemInfo) == 3 {
+			for j := 0; j < len(itemInfo); j++ {
+				switch j {
+				case 0:
+					{
+						num, err := strconv.Atoi(itemInfo[j])
+						if err != nil {
+							item.Amount = -1
+						} else {
+							item.Amount = num
+						}
+						break
+					}
+				case 1:
+					{
+						item.Name = itemInfo[j]
+						break
+					}
+				case 2:
+					{
+						item.Description = itemInfo[j]
+						break
+					}
+				}
+			}
+			inventory = append(inventory, item)
+		}
+	}
+	return inventory
+}
+
+func parseSpells(spellList []string) []pages.Spell {
+	spells := []pages.Spell{}
+	for i := 0; i < len(spellList); i++ {
+		spell := pages.Spell{}
+		spellInfo := strings.Split(spellList[i], ":")
+		if len(spellInfo) == 3 {
+			for j := 0; j < len(spellInfo); j++ {
+				switch j {
+				case 0:
+					{
+						spell.Name = spellInfo[j]
+						break
+					}
+				case 1:
+					{
+						num, _ := strconv.Atoi(spellInfo[j])
+						spell.Level = num
+						break
+					}
+				case 2:
+					{
+						spell.Description = spellInfo[j]
+						break
+					}
+				}
+			}
+			spells = append(spells, spell)
+		}
+	}
+	return spells
 }
 
 func makeHash(pwd []byte) string {
@@ -104,7 +211,14 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		data.Title = "Welcome " + username
 		data.LoggedIn = true
-		data.Sheets = db.GetSheets(username)
+		sheets, err := db.GetSheets(username)
+		if err != nil {
+			data.Sheets = []string{"Could not load sheets from database"}
+		} else if len(sheets) == 0 {
+			data.Sheets = []string{"You have no saved sheets"}
+		} else {
+			data.Sheets = sheets
+		}
 	}
 	pageData, err := json.Marshal(data)
 	if err != nil {
@@ -123,11 +237,16 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	if username != "" && password != "" {
-		if db.CheckUser(username, password) {
+		ok, err := db.CheckUser(username, password)
+		if err != nil || !ok {
+			actionFailed(w, `{"message":"Could not match password or username"}`)
+		} else if ok {
 			setSession(username, w)
+			http.Redirect(w, r, "/index/", 303)
 		}
+	} else {
+		http.Redirect(w, r, "/index/", 303)
 	}
-	http.Redirect(w, r, "/index/", 303)
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -142,14 +261,19 @@ func sheetHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/index/", 303)
 	} else {
 		page.LoggedIn = true
-		page.CharacterSheet = db.GetSheet(username, r.FormValue("sheet"))
+		sheet, err := db.GetSheet(username, r.FormValue("sheet"))
+		if err != nil {
+			actionFailed(w, `{"message":"`+err.Error()+`"}`)
+		} else {
+			page.CharacterSheet = sheet
+			pageData, err := json.Marshal(page)
+			if err != nil {
+				panic(err)
+			}
+			t, _ := template.ParseFiles("./templates/sheet.html")
+			t.Execute(w, string(pageData))
+		}
 	}
-	pageData, err := json.Marshal(page)
-	if err != nil {
-		panic(err)
-	}
-	t, _ := template.ParseFiles("./templates/sheet.html")
-	t.Execute(w, string(pageData))
 }
 
 func registerHandler(w http.ResponseWriter, r *http.Request) {
@@ -159,19 +283,22 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	if username == "" || password == "" {
 		http.Redirect(w, r, "/index/", 303)
 	} else if username != "" && password != "" {
-		exist := db.CheckUserName(r.FormValue("username"))
-		if !exist {
+		exist, err := db.CheckUserName(r.FormValue("username"))
+		if err != nil {
+			actionFailed(w, `{"message":"`+err.Error()+`"}`)
+		} else if !exist {
 			user.Username = r.FormValue("username")
 			user.Password = makeHash([]byte(r.FormValue("password")))
 			user.Sheets = []string{}
 			err := db.RegisterUser(user)
 			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(`{"message":"` + err.Error() + `"}`))
-				return
+				actionFailed(w, `{"message":"`+err.Error()+`"}`)
+			} else {
+				http.Redirect(w, r, "/loginpage/", 303)
 			}
+		} else {
+			actionFailed(w, `{"message":"Username is already taken"}`)
 		}
-		http.Redirect(w, r, "/loginpage/", 303)
 	}
 }
 
@@ -227,115 +354,25 @@ func newSheetHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		var inventory = []pages.Item{}
 		if len(r.Form["inventory"]) > 0 {
-			items := strings.Split(r.Form["inventory"][0], ",")
-			for i := 0; i < len(items); i++ {
-				item := pages.Item{}
-				itemInfo := strings.Split(items[i], ":")
-				if len(itemInfo) == 3 {
-					for j := 0; j < len(itemInfo); j++ {
-						switch j {
-						case 0:
-							{
-								num, _ := strconv.Atoi(itemInfo[j])
-								item.Amount = num
-								break
-							}
-						case 1:
-							{
-								item.Name = itemInfo[j]
-								break
-							}
-						case 2:
-							{
-								item.Description = itemInfo[j]
-								break
-							}
-						}
-					}
-					inventory = append(inventory, item)
-				}
-			}
+			inventory = parseItems(strings.Split(r.Form["inventory"][0], ","))
 		}
 		var feats = []pages.Feat{}
 		if len(r.Form["feats"]) > 0 {
-			featList := strings.Split(r.Form["feats"][0], ",")
-			for i := 0; i < len(featList); i++ {
-				feat := pages.Feat{}
-				featInfo := strings.Split(featList[i], ":")
-				if len(featInfo) == 2 {
-					for j := 0; j < len(featInfo); j++ {
-						switch j {
-						case 0:
-							{
-								feat.Name = featInfo[j]
-								break
-							}
-						case 1:
-							{
-								feat.Description = featInfo[j]
-								break
-							}
-						}
-					}
-					feats = append(feats, feat)
-				}
+			featsOrAllies := parseFeatsAndAllies(strings.Split(r.Form["feats"][0], ","))
+			for _, feat := range featsOrAllies {
+				feats = append(feats, pages.Feat{Name: feat.Name, Description: feat.Description})
 			}
 		}
 		var allies = []pages.Ally{}
 		if len(r.Form["allies"]) > 0 {
-			allyList := strings.Split(r.Form["allies"][0], ",")
-			for i := 0; i < len(allyList); i++ {
-				ally := pages.Ally{}
-				allyInfo := strings.Split(allyList[i], ":")
-				if len(allyInfo) == 2 {
-					for j := 0; j < len(allyInfo); j++ {
-						switch j {
-						case 0:
-							{
-								ally.Name = allyInfo[j]
-								break
-							}
-						case 1:
-							{
-								ally.Description = allyInfo[j]
-								break
-							}
-						}
-					}
-					allies = append(allies, ally)
-				}
+			featsOrAllies := parseFeatsAndAllies(strings.Split(r.Form["allies"][0], ","))
+			for _, ally := range featsOrAllies {
+				allies = append(allies, pages.Ally{Name: ally.Name, Description: ally.Description})
 			}
 		}
 		var spells = []pages.Spell{}
 		if len(r.Form["spells"]) > 0 {
-			spellList := strings.Split(r.Form["spells"][0], ",")
-			for i := 0; i < len(spellList); i++ {
-				spell := pages.Spell{}
-				spellInfo := strings.Split(spellList[i], ":")
-				if len(spellInfo) == 3 {
-					for j := 0; j < len(spellInfo); j++ {
-						switch j {
-						case 0:
-							{
-								spell.Name = spellInfo[j]
-								break
-							}
-						case 1:
-							{
-								num, _ := strconv.Atoi(spellInfo[j])
-								spell.Level = num
-								break
-							}
-						case 2:
-							{
-								spell.Description = spellInfo[j]
-								break
-							}
-						}
-					}
-					spells = append(spells, spell)
-				}
-			}
+			spells = parseSpells(strings.Split(r.Form["spells"][0], ","))
 		}
 		sheet.Owner = username
 		sheet.Name = r.Form["name"][0]
@@ -379,7 +416,12 @@ func newSheetHandler(w http.ResponseWriter, r *http.Request) {
 		sheet.HitDie = hitDie
 		sheet.Health = health
 		sheet.Spells = spells
-		db.RegisterSheet(username, sheet)
+		err := db.RegisterSheet(username, sheet)
+		if err != nil {
+			actionFailed(w, `{"message":"`+err.Error()+`"}`)
+		} else {
+			http.Redirect(w, r, "/index/", 303)
+		}
 	}
 	http.Redirect(w, r, "/index/", 303)
 }
@@ -392,8 +434,12 @@ func newSheetPageHandler(w http.ResponseWriter, r *http.Request) {
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	username := getUserName(r)
 	sheet := r.FormValue("yes")
-	db.DeleteSheet(username, sheet)
-	http.Redirect(w, r, "/index/", 303)
+	err := db.DeleteSheet(username, sheet)
+	if err != nil {
+		actionFailed(w, `{"message":"`+err.Error()+`"}`)
+	} else {
+		http.Redirect(w, r, "/index/", 303)
+	}
 }
 
 func deletePageHandler(w http.ResponseWriter, r *http.Request) {

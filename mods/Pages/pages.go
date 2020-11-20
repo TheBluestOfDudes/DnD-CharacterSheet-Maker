@@ -114,3 +114,8 @@ type SheetPage struct {
 type DeletePage struct {
 	SheetName string
 }
+
+//FailPage holds the data that fills the error page
+type FailPage struct {
+	Error string
+}

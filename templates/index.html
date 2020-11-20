@@ -16,37 +16,43 @@
                     logout.style.display = "none";
                 }else{
                     logReg.style.display = "none";
-                    for(let i = 0; i < data.Sheets.length; i++){
+                    if(data.Sheets[0] == "Could not load sheets from database" || data.Sheets[0] == "You have no saved sheets"){
                         let div = document.createElement("div");
-                        let sheet = document.createElement("form");
-                        let input = document.createElement("input");
-                        let deleteSheet = document.createElement("form");
-                        let deleteInput = document.createElement("input");
-                        let button = document.createElement("button");
-                        let deleteButton = document.createElement("button");
-                        let br = document.createElement("br");
-                        sheet.method = "POST";
-                        sheet.action = "/sheet/";
-                        input.name = "sheet";
-                        input.value = data.Sheets[i];
-                        input.style.display = "none";
-                        button.type = "submit";
-                        button.innerHTML = data.Sheets[i];
-                        deleteSheet.method = "POST";
-                        deleteSheet.action ="/deletepage/";
-                        deleteInput.name = "delete";
-                        deleteInput.value = data.Sheets[i];
-                        deleteInput.style.display = "none";
-                        deleteButton.type = "submit";
-                        deleteButton.innerHTML = "Delete " + data.Sheets[i];
-                        sheet.appendChild(input);
-                        sheet.appendChild(button);
-                        deleteSheet.appendChild(deleteInput);
-                        deleteSheet.appendChild(deleteButton);
-                        div.appendChild(sheet);
-                        div.appendChild(deleteSheet);
+                        div.innerHTML = data.Sheets[0];
                         sheets.appendChild(div);
-                        sheets.appendChild(br);
+                    }else{
+                        for(let i = 0; i < data.Sheets.length; i++){
+                            let div = document.createElement("div");
+                            let sheet = document.createElement("form");
+                            let input = document.createElement("input");
+                            let deleteSheet = document.createElement("form");
+                            let deleteInput = document.createElement("input");
+                            let button = document.createElement("button");
+                            let deleteButton = document.createElement("button");
+                            let br = document.createElement("br");
+                            sheet.method = "POST";
+                            sheet.action = "/sheet/";
+                            input.name = "sheet";
+                            input.value = data.Sheets[i];
+                            input.style.display = "none";
+                            button.type = "submit";
+                            button.innerHTML = data.Sheets[i];
+                            deleteSheet.method = "POST";
+                            deleteSheet.action ="/deletepage/";
+                            deleteInput.name = "delete";
+                            deleteInput.value = data.Sheets[i];
+                            deleteInput.style.display = "none";
+                            deleteButton.type = "submit";
+                            deleteButton.innerHTML = "Delete " + data.Sheets[i];
+                            sheet.appendChild(input);
+                            sheet.appendChild(button);
+                            deleteSheet.appendChild(deleteInput);
+                            deleteSheet.appendChild(deleteButton);
+                            div.appendChild(sheet);
+                            div.appendChild(deleteSheet);
+                            sheets.appendChild(div);
+                            sheets.appendChild(br);
+                        }
                     }
                 }
             }
