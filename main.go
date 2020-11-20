@@ -16,11 +16,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//Helper struct for parsing feats and allies in a submitted character sheet
 type featOrAlly struct {
-	Name        string
-	Description string
+	Name        string //The name of the given object
+	Description string //Description of the object
 }
 
+//Sets the session cookie
 var cookieHandler = securecookie.New(
 	securecookie.GenerateRandomKey(64),
 	securecookie.GenerateRandomKey(32))
@@ -49,6 +51,7 @@ func main() {
 	}
 }
 
+//Loads the fail page with a submitted failure message. Called whenever an operation fails
 func actionFailed(w http.ResponseWriter, message string) {
 	fail := pages.FailPage{}
 	t, _ := template.ParseFiles("./templates/fail.html")
@@ -57,13 +60,15 @@ func actionFailed(w http.ResponseWriter, message string) {
 	t.Execute(w, fail)
 }
 
+//Takes in a list of feats or allies from a submitted sheet, and then parses them into structs to be put into an array
 func parseFeatsAndAllies(list []string) []featOrAlly {
-	featsOrAllies := []featOrAlly{}
-	for i := 0; i < len(list); i++ {
-		feOAl := featOrAlly{}
-		info := strings.Split(list[i], ":")
-		if len(info) == 2 {
-			for j := 0; j < len(info); j++ {
+	//List is a an array of strings in the format "<name>:<description>"
+	featsOrAllies := []featOrAlly{}  //Array we will be returning
+	for i := 0; i < len(list); i++ { //Loop through each item in the list
+		feOAl := featOrAlly{}               //Struct we will be filling to data
+		info := strings.Split(list[i], ":") //Split the name and description apart
+		if len(info) == 2 {                 //Assuming the input was valid, we should have a length of 2
+			for j := 0; j < len(info); j++ { //Fill in the values of the struct
 				switch j {
 				case 0:
 					{
@@ -77,23 +82,25 @@ func parseFeatsAndAllies(list []string) []featOrAlly {
 					}
 				}
 			}
-			featsOrAllies = append(featsOrAllies, feOAl)
+			featsOrAllies = append(featsOrAllies, feOAl) //Append to the array
 		}
 	}
 	return featsOrAllies
 }
 
+//Takes in a list of items from the submitted sheet, and then parses them into structs to be an inventory array
 func parseItems(itemList []string) []pages.Item {
-	inventory := []pages.Item{}
-	for i := 0; i < len(itemList); i++ {
-		item := pages.Item{}
-		itemInfo := strings.Split(itemList[i], ":")
+	//Each item in the list is a string in the format "<amount>:<name>:<description>"
+	inventory := []pages.Item{}          //Array we will be returning
+	for i := 0; i < len(itemList); i++ { //Looping through each tiem
+		item := pages.Item{}                        //Struct we're filling with data
+		itemInfo := strings.Split(itemList[i], ":") //Split up the amount, name and description
 		if len(itemInfo) == 3 {
-			for j := 0; j < len(itemInfo); j++ {
+			for j := 0; j < len(itemInfo); j++ { //Put the data into the struct
 				switch j {
 				case 0:
 					{
-						num, err := strconv.Atoi(itemInfo[j])
+						num, err := strconv.Atoi(itemInfo[j]) //Try to parse the amount to an int. If we fail, we make it -1
 						if err != nil {
 							item.Amount = -1
 						} else {
@@ -113,18 +120,20 @@ func parseItems(itemList []string) []pages.Item {
 					}
 				}
 			}
-			inventory = append(inventory, item)
+			inventory = append(inventory, item) //Append to the inventory array
 		}
 	}
 	return inventory
 }
 
+//Takes in a list of spells from the submitted sheet, and then parses them into structs to be a spell array
 func parseSpells(spellList []string) []pages.Spell {
-	spells := []pages.Spell{}
-	for i := 0; i < len(spellList); i++ {
-		spell := pages.Spell{}
-		spellInfo := strings.Split(spellList[i], ":")
-		if len(spellInfo) == 3 {
+	//Each item in the list is a string in the format "<name>:<level>:<description>"
+	spells := []pages.Spell{}             //Array we're returning
+	for i := 0; i < len(spellList); i++ { //Loop through each item
+		spell := pages.Spell{}                        //Struct we'll be filling with data
+		spellInfo := strings.Split(spellList[i], ":") //Separate the name, level and description
+		if len(spellInfo) == 3 {                      //Load the data into the struct
 			for j := 0; j < len(spellInfo); j++ {
 				switch j {
 				case 0:
@@ -134,8 +143,12 @@ func parseSpells(spellList []string) []pages.Spell {
 					}
 				case 1:
 					{
-						num, _ := strconv.Atoi(spellInfo[j])
-						spell.Level = num
+						num, err := strconv.Atoi(spellInfo[j]) //Try to parse the level to an int.
+						if err != nil {
+							spell.Level = -1
+						} else {
+							spell.Level = num
+						}
 						break
 					}
 				case 2:
@@ -145,12 +158,13 @@ func parseSpells(spellList []string) []pages.Spell {
 					}
 				}
 			}
-			spells = append(spells, spell)
+			spells = append(spells, spell) //Append to the spells array
 		}
 	}
 	return spells
 }
 
+//Hashes password using bcrypt
 func makeHash(pwd []byte) string {
 	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
 	if err != nil {
@@ -159,6 +173,7 @@ func makeHash(pwd []byte) string {
 	return string(hash)
 }
 
+//Sets the session cookie, and the username variable
 func setSession(userName string, w http.ResponseWriter) {
 	value := map[string]string{
 		"name": userName,
@@ -174,6 +189,7 @@ func setSession(userName string, w http.ResponseWriter) {
 	}
 }
 
+//Deletes the session cookie
 func clearSession(w http.ResponseWriter) {
 	cookie := &http.Cookie{
 		Name:   "session",
@@ -184,6 +200,7 @@ func clearSession(w http.ResponseWriter) {
 	http.SetCookie(w, cookie)
 }
 
+//Gets the username stored in the session cookie.
 func getUserName(r *http.Request) (userName string) {
 	if cookie, err := r.Cookie("session"); err == nil {
 		cookieValue := make(map[string]string)
@@ -194,6 +211,7 @@ func getUserName(r *http.Request) (userName string) {
 	return userName
 }
 
+//Gets the port environment variable
 func determineListenAddress() (string, error) {
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -202,6 +220,7 @@ func determineListenAddress() (string, error) {
 	return ":" + port, nil
 }
 
+//Main handler. Loads the index page
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	data := pages.Index{}
 	username := getUserName(r)
@@ -228,43 +247,47 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, string(pageData))
 }
 
+//Handler that loads the login page
 func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("./templates/login.html")
 	t.Execute(w, nil)
 }
 
+//Handler that tries to log the user in
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	if username != "" && password != "" {
 		ok, err := db.CheckUser(username, password)
-		if err != nil || !ok {
+		if err != nil || !ok { //Load failure page if the login credentials were incorrect
 			actionFailed(w, `{"message":"Could not match password or username"}`)
-		} else if ok {
+		} else if ok { //If the credentials were ok, we set up the session value to be the username and route back to index
 			setSession(username, w)
 			http.Redirect(w, r, "/index/", 303)
 		}
-	} else {
+	} else { //Route to index if there are no form values
 		http.Redirect(w, r, "/index/", 303)
 	}
 }
 
+//Handler deletes the session cookie and routes back to index
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	clearSession(w)
 	http.Redirect(w, r, "/index/", 303)
 }
 
+//Handler loads the sheet page
 func sheetHandler(w http.ResponseWriter, r *http.Request) {
 	username := getUserName(r)
 	page := pages.SheetPage{}
-	if username == "" {
+	if username == "" { //Routes back to index if accessed without being logged in yet
 		http.Redirect(w, r, "/index/", 303)
 	} else {
 		page.LoggedIn = true
 		sheet, err := db.GetSheet(username, r.FormValue("sheet"))
-		if err != nil {
+		if err != nil { //Loads error page if we failed to load the character sheet
 			actionFailed(w, `{"message":"`+err.Error()+`"}`)
-		} else {
+		} else { //Load the sheet page
 			page.CharacterSheet = sheet
 			pageData, err := json.Marshal(page)
 			if err != nil {
@@ -276,41 +299,44 @@ func sheetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//Handler tries to register a user
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	user := db.User{}
-	if username == "" || password == "" {
+	if username == "" || password == "" { //Routes to index if the form values arent set
 		http.Redirect(w, r, "/index/", 303)
 	} else if username != "" && password != "" {
 		exist, err := db.CheckUserName(r.FormValue("username"))
-		if err != nil {
+		if err != nil { //Loads error page if we fail to check the suer
 			actionFailed(w, `{"message":"`+err.Error()+`"}`)
 		} else if !exist {
 			user.Username = r.FormValue("username")
 			user.Password = makeHash([]byte(r.FormValue("password")))
 			user.Sheets = []string{}
 			err := db.RegisterUser(user)
-			if err != nil {
+			if err != nil { //Load fail page if we fail to register the user
 				actionFailed(w, `{"message":"`+err.Error()+`"}`)
-			} else {
+			} else { //Route to the login page if all is well
 				http.Redirect(w, r, "/loginpage/", 303)
 			}
-		} else {
+		} else { //Load fail page if the username is already in existance
 			actionFailed(w, `{"message":"Username is already taken"}`)
 		}
 	}
 }
 
+//Handler loads the register page
 func registerPageHandler(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("./templates/register.html")
 	t.Execute(w, nil)
 }
 
+//Handler tries to register a new sheet
 func newSheetHandler(w http.ResponseWriter, r *http.Request) {
 	username := getUserName(r)
-	if username != "" {
-		sheet := pages.Sheet{}
+	if username != "" { //If the user is logged in, we try to load the sheet
+		sheet := pages.Sheet{} //Fill a sheet object with all the relevant values
 		r.ParseForm()
 		age, _ := strconv.Atoi(r.Form["age"][0])
 		level, _ := strconv.Atoi(r.Form["level"][0])
@@ -416,32 +442,39 @@ func newSheetHandler(w http.ResponseWriter, r *http.Request) {
 		sheet.HitDie = hitDie
 		sheet.Health = health
 		sheet.Spells = spells
-		err := db.RegisterSheet(username, sheet)
-		if err != nil {
+		err := db.RegisterSheet(username, sheet) //Attemt to register the sheet
+		if err != nil {                          //Load fail page if we fail to register the sheet
 			actionFailed(w, `{"message":"`+err.Error()+`"}`)
-		} else {
+		} else { //Route back to index if all is well
 			http.Redirect(w, r, "/index/", 303)
 		}
 	}
 	http.Redirect(w, r, "/index/", 303)
 }
 
+//Handler laods the new sheet page
 func newSheetPageHandler(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("./templates/newSheet.html")
 	t.Execute(w, nil)
 }
 
+//Handler tries to delete a given sheet from the database
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	username := getUserName(r)
-	sheet := r.FormValue("yes")
-	err := db.DeleteSheet(username, sheet)
-	if err != nil {
-		actionFailed(w, `{"message":"`+err.Error()+`"}`)
-	} else {
+	if username != "" {
+		sheet := r.FormValue("yes")            //Get the name of the sheet
+		err := db.DeleteSheet(username, sheet) //Attempt to delete the sheet
+		if err != nil {                        //Load error page on failure
+			actionFailed(w, `{"message":"`+err.Error()+`"}`)
+		} else { //Route back to index if all is well
+			http.Redirect(w, r, "/index/", 303)
+		}
+	} else { //Route to index if the user isnt logged in
 		http.Redirect(w, r, "/index/", 303)
 	}
 }
 
+//Handler loads the delete page
 func deletePageHandler(w http.ResponseWriter, r *http.Request) {
 	username := getUserName(r)
 	page := pages.DeletePage{}

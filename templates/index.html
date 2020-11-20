@@ -5,23 +5,23 @@
         <script>
             window.addEventListener("load", start);
             function start(){
-                let data = {{.}};
+                let data = {{.}};   //Data received from API
                 let sheets = document.getElementById("sheets");
                 let logReg = document.getElementById("logRreg");
                 let logut = document.getElementById("logout");
                 let title = document.getElementById("title");
-                title.innerHTML = data.Title;
-                if(!data.LoggedIn){
+                title.innerHTML = data.Title;   //Set the title
+                if(!data.LoggedIn){ //Hide the sheets div if we arent logged in
                     sheets.style.display = "none";
                     logout.style.display = "none";
-                }else{
+                }else{  //Hide login/register if we are logged in
                     logReg.style.display = "none";
-                    if(data.Sheets[0] == "Could not load sheets from database" || data.Sheets[0] == "You have no saved sheets"){
+                    if(data.Sheets[0] == "Could not load sheets from database" || data.Sheets[0] == "You have no saved sheets"){    //Write out failure or lack of sheets
                         let div = document.createElement("div");
                         div.innerHTML = data.Sheets[0];
                         sheets.appendChild(div);
                     }else{
-                        for(let i = 0; i < data.Sheets.length; i++){
+                        for(let i = 0; i < data.Sheets.length; i++){    //Make a view and delete button for each sheet loaded
                             let div = document.createElement("div");
                             let sheet = document.createElement("form");
                             let input = document.createElement("input");

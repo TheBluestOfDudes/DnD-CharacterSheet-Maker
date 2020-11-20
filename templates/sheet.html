@@ -6,14 +6,15 @@
             window.addEventListener("load", start);
 
             function start(){
-                let data = {{.}};
-                document.getElementById("sheetname").innerHTML = "Sheet name:<br/>" + data.CharacterSheet.name;
-                fillTop(data.CharacterSheet);
+                let data = {{.}};   //Data received from API
+                document.getElementById("sheetname").innerHTML = "Sheet name:<br/>" + data.CharacterSheet.name; //Set the sheet's name
+                fillTop(data.CharacterSheet);   //Fill the relevant sections of the sheet
                 fillMiddle(data.CharacterSheet);
                 fillBottom(data.CharacterSheet);
                 fillBio(data.CharacterSheet);
             }
-            
+
+            //Loops through all the child nodes of the top element and calls relevant functions to fill their data
             function fillTop(sheet){
                 let top = document.getElementById("top");
                 for(let el of top.childNodes){
@@ -24,6 +25,7 @@
                 }
             }
 
+            //Loops through all the children nodes in character info and fills them with their relevant data
             function fillCharInfo(sheet, eles){
                 for(let el of eles){
                     switch(el.id){
@@ -38,6 +40,7 @@
                 }
             }
 
+            //Loops through all the child nodes in the middle portion and calls functions to fill the relevant data
             function fillMiddle(sheet){
                 let middle = document.getElementById("middle");
                 for(let el of middle.childNodes){
@@ -50,6 +53,7 @@
                 }
             }
 
+            //Loops through each ability score element and fills in with the relevant data
             function fillScores(sheet, eles){
                 for(let el of eles){
                     switch(el.id){
@@ -63,10 +67,12 @@
                 }
             }
 
+            //Calculates the DnD ability modifier
             function scoreToMod(score){
                 return Math.floor((score-10)/2);
             }
 
+            //Puts the data of the ability score in the correct places
             function fillAbility(score, eles){
                 for(let el of eles){
                     switch(el.className){
@@ -76,6 +82,7 @@
                 }
             }
 
+            //Loops through each proficency element and call functions to fill the relevant data
             function fillProficiencies(sheet, eles){
                 for(let el of eles){
                     switch(el.id){
@@ -86,6 +93,7 @@
                 }
             }
 
+            //Loops through each save and fill in the relevant values
             function fillSaves(saves, scores, prof, eles){
                 for(let ele of eles){
                     switch(ele.id){
@@ -99,6 +107,7 @@
                 }
             }
 
+            //Loops through every skill in dnd and calls a function to fill with the relevant values
             function fillSkills(profSkills, exSkills, scores, prof, eles){
                 for(let ele of eles){
                     switch(ele.id){
@@ -124,16 +133,17 @@
                 }
             }
 
+            //Fills a proficency element with its relevant values
             function fillSkill(isProf, isExpert, score, bonus, eles){
                 let mod = 0;
                 for(let el of eles){
                     switch(el.className){
                         case "profEleLeft": {
-                            if(isExpert){
+                            if(isExpert){   //If the character has expertise in the skill, they use double the proficiency bonus
                                 mod = bonus*2 + score;
-                            }else if(isProf){
+                            }else if(isProf){   //If they have proficiency they add the proficiency bonus
                                 mod = bonus + score;
-                            }else{
+                            }else{      //If they dont have any proficiency or expertise they use the ability score
                                 mod = score;
                             }
                             el.innerHTML = "+" + mod;
@@ -142,6 +152,7 @@
                 }
             }
 
+            //Fills in all the combat stats with their relevant data
             function fillCombat(sheet){
                 document.getElementById("ac").innerHTML = sheet.ac;
                 document.getElementById("speed").innerHTML = sheet.speed + "ft";
@@ -151,6 +162,7 @@
                 document.getElementById("hitAmount").innerHTML = "Amount<br/>" + sheet.hitDie.amount;
             }
 
+            //Loops through the elements in the background section and fills in the relevant data
             function fillBackg(sheet, eles){
                 for(let el of eles){
                     for(let ele of el.childNodes){
@@ -163,7 +175,7 @@
                     }
                 }
             }
-
+            //Loop through the elements in the bottom section and calls methods to show the relevant data
             function fillBottom(sheet){
                 let bottom = document.getElementById("bottom");
                 for(let el of bottom.childNodes){
@@ -174,8 +186,10 @@
                         case "languages": fillLanguages(sheet.languages, el); break;
                         case "feats": fillFeats(sheet.feats, el); break;
                         case "spells": {
-                            if(sheet.spells != null){
+                            if(sheet.spells != null){   //Only load the spells if there are spells
                                 fillSpells(sheet.spells);
+                            }else if(sheet.spells[0] == null){
+                                el.style.display = "none";
                             }else{
                                 el.style.display = "none";
                             }
@@ -184,6 +198,7 @@
                 }
             }
 
+            //Fills in the other proficiencies a character has
             function fillOtherProfs(sheet, eles){
                 let armor = document.getElementById("armorProfs");
                 let weapon = document.getElementById("weaponProfs");
@@ -195,7 +210,8 @@
                 tool.innerHTML = fillProfBlock(tool, sheet.tools);
                 vehicle.innerHTML = fillProfBlock(vehicle, sheet.vehicles);
             }
-
+            
+            //Fills a proficiency block element with its data
             function fillProfBlock(ele, array){
                 let text = "";
                 if(array != null){
@@ -210,6 +226,7 @@
                 return text;
             }
 
+            //Fills in the inventory and money the character has
             function fillInventory(inventory, money, el){
                 let items = document.getElementById("items");
                 let cp = document.getElementById("cp");
@@ -230,10 +247,12 @@
                 fillCoin(money.pp, pp, "PP");
             }
 
+            //Fills a money element with its data
             function fillCoin(value, el, name){
                 el.innerHTML = name + ": " + value;
             }
-
+            
+            //Fills the language list
             function fillLanguages(langs, el){
                 let h = document.createElement("h1");
                 h.innerHTML = "Languages";
@@ -247,6 +266,7 @@
                 }
             }
 
+            //Fills the feats list
             function fillFeats(feats, el){
                 let h = document.createElement("h1");
                 h.innerHTML = "Feats";
@@ -260,6 +280,7 @@
                 }
             }
 
+            //Fills the spells list
             function fillSpells(spells){
                 let id = "";
                 for(let spell of spells){
@@ -271,6 +292,7 @@
                 }
             }
 
+            //Fills the bio information of the user
             function fillBio(sheet){
                 let allies = document.getElementById("allies")
                 document.getElementById("height").innerHTML = sheet.height;
