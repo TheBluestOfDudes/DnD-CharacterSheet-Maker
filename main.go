@@ -171,7 +171,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		http.Redirect(w, r, "/index/", 303)
+		http.Redirect(w, r, "/loginpage/", 303)
 	}
 }
 
